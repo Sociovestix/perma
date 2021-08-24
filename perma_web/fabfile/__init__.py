@@ -10,7 +10,7 @@ except Exception as e:
 
 # import sub-tasks
 from . import dev  # noqa
-from .dev import run_django, test  # noqa
+from .dev import run_django, run_django_prod, test  # noqa
 
 # optionally import fab_targets
 try:

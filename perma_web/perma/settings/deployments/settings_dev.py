@@ -7,11 +7,11 @@ DEBUG = True
 #
 # HOSTS
 #
-HOST = 'perma.test:8000'
-PLAYBACK_HOST = 'perma-archives.test:8092'
+HOST = 'localhost:8000'
+PLAYBACK_HOST = 'localhost:8092'
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ['perma.test', 'api.perma.test']
+ALLOWED_HOSTS = ['*']
 
 # logging
 LOGGING_DIR = os.path.join(SERVICES_DIR, 'logs')
@@ -93,3 +93,12 @@ PERMA_PAYMENTS_ENCRYPTION_KEYS = {
 SCAN_UPLOADS = True
 SCAN_URL = 'http://filecheck:8888/scan/'
 
+# caching
+CACHES["default"] = {
+    "BACKEND": "django_redis.cache.RedisCache",
+    "LOCATION": "redis://127.0.0.1:6379/0",
+    "OPTIONS": {
+        "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        "IGNORE_EXCEPTIONS": True,  # since this is just a cache, we don't want to show errors if redis is offline for some reason
+    }
+}

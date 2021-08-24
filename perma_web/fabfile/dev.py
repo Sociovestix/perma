@@ -13,6 +13,20 @@ from fabric.operations import local
 from perma.tests.utils import reset_failed_test_files_folder
 
 
+@task(name='run_prod')
+def run_django_prod():
+    commands = []
+
+    if settings.RUN_TASKS_ASYNC:
+        print("Starting background celery process. Warning: this has a documented memory leak, and developing with"
+              " RUN_TASKS_ASYNC=False is usually easier unless you're specifically testing a Django-Celery interaction.")
+        commands.append('celery -A perma worker --loglevel=info -Q celery,background,ia -B -n w1@%h')
+
+    proc_list = [subprocess.Popen(command, shell=True, stdout=sys.stdout, stderr=sys.stderr) for command in commands]
+
+    local("gunicorn --log-level debug --access-logfile - -w 1 -b 0.0.0.0:8000 -k gevent --forwarded-allow-ips '*' perma.wsgi")
+
+
 @task(name='run')
 def run_django(port="0.0.0.0:8000", use_ssl=False, cert_file='perma-test.crt', host='perma.test', debug_toolbar=''):
     """

@@ -34,7 +34,7 @@ services:
         chrome-layer-cache-buster: f51c8c61-4b8d-4aef-93ec-282e99f99e55
     image: perma3:0.110
     tty: true
-    command: bash
+    command: sh -c "sleep 5 && pipenv run fab run_prod"
     # TO AUTOMATICALLY START PERMA:
     # (sleep hack to give the database and rabbitmq time to start up)
     # command: >
@@ -60,13 +60,6 @@ services:
     shm_size: 2G
     environment:
       - DOCKERIZED=True
-    extra_hosts:
-      - "perma.test:127.0.0.1"
-      - "api.perma.test:127.0.0.1"
-      # N.B. the "perma-archives.test" host is unnecessary if playback is handled by WR
-      - "perma-archives.test:127.0.0.1"
-      # N.B. the "web" host is required for functional tests if playback is handled by WR
-      - "web:127.0.0.1"
     ports:
       - "127.0.0.1:8000:8000"
     depends_on:
