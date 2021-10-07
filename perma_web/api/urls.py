@@ -70,6 +70,8 @@ urlpatterns = [
         url(legacy_user_prefix + r'archives/%s/?$' % guid_pattern, views.AuthenticatedLinkDetailView.as_view(), name='archives'),
         # /archives/:guid/download
         url(legacy_user_prefix + r'archives/%s/download/?$' % guid_pattern, views.AuthenticatedLinkDownloadView.as_view(), name='archives_download'),
+        # /archives/:guid/download/html
+        url(legacy_user_prefix + r'archives/%s/download/html/?$' % guid_pattern, views.AuthenticatedLinkDownloadHtmlView.as_view(), name='archives_download_html'),
 
         # /capture_jobs
         url(legacy_user_prefix + r'capture_jobs/?$', views.CaptureJobListView.as_view(), name='capture_jobs'),

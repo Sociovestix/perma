@@ -24,6 +24,7 @@ from ua_parser import user_agent_parser
 import unicodedata
 from urllib.parse import urlparse
 from urllib3 import poolmanager
+from warcio.archiveiterator import ArchiveIterator
 from warcio.warcwriter import BufferWARCWriter
 from wsgiref.util import FileWrapper
 
@@ -655,6 +656,33 @@ def get_warc_stream(link, stream=True):
     response['Content-Disposition'] = 'attachment; filename="%s"' % filename
 
     return response
+
+def get_warc_html(link, stream=True):
+    filename = "%s.warc.html" % link.guid
+
+    timestamp = link.creation_timestamp.strftime('%Y%m%d%H%M%S')
+
+    warcinfo = make_detailed_warcinfo(
+        filename=filename,
+        guid=link.guid,
+        coll_title='Perma Archive, %s' % link.submitted_title,
+        coll_desc=link.submitted_description,
+        rec_title='Perma Archive of %s' % link.submitted_title,
+        pages=[{
+            'title': link.submitted_title,
+            'url': link.submitted_url,
+            'timestamp': timestamp
+        }]
+    )
+
+    with default_storage.open(link.warc_storage_file()) as stream:
+        html = []
+        for record in ArchiveIterator(stream):
+            if record.rec_type == 'response':
+                if record.rec_headers.get_header('WARC-Target-URI').endswith("/"):
+                    html.append(record.content_stream().read().decode())
+
+    return HttpResponse(html[-1], content_type="text/plain")
 
 def stream_warc(link, stream=True):
     # `link.user_deleted` is checked here for dev convenience:

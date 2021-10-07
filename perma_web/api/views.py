@@ -13,7 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from perma.utils import run_task, stream_warc, stream_warc_if_permissible, clear_wr_session
+from perma.utils import run_task, stream_warc, stream_warc_if_permissible, clear_wr_session, get_warc_html
 from perma.tasks import run_next_capture
 from perma.models import Folder, CaptureJob, Link, Capture, Organization, LinkBatch
 
@@ -613,6 +613,20 @@ class AuthenticatedLinkDownloadView(BaseView):
         if link.replacement_link_id:
             return HttpResponseRedirect(reverse_api_view_relative('archives_download', kwargs={'guid': link.replacement_link_id}))
         return stream_warc_if_permissible(link, request.user)
+
+
+#/archives/:guid/download/html
+class AuthenticatedLinkDownloadHtmlView(BaseView):
+    serializer_class = AuthenticatedLinkSerializer
+
+    def get(self, request, guid, format=None):
+        """ Download html """
+        link = self.get_object_for_user_by_pk(request.user, guid)
+        if link.replacement_link_id:
+            return HttpResponseRedirect(
+                reverse_api_view_relative('archives_download_html', kwargs={'guid': link.replacement_link_id}))
+        #return stream_warc_if_permissible(link, request.user)
+        return get_warc_html(link)
 
 
 # /folders/:parent_id/archives/:guid
